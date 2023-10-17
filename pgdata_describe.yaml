@@ -1,0 +1,309 @@
+Name:             postgres-upgrade-pgdata-4s826
+Namespace:        evd-app
+Priority:         0
+Service Account:  app-pgtest-instance
+Node:             aks-nodepool1-37632515-vmss0000fe/10.1.16.70
+Start Time:       Tue, 17 Oct 2023 16:23:18 +0300
+Labels:           alertmanager-config=enabled
+                  app-code=app
+                  bl-cc=US104772
+                  bl-ssr=EAR-AA-7529
+                  controller-uid=8fdf266a-98f1-42a9-abd0-2a7907a72756
+                  job-name=postgres-upgrade-pgdata
+                  postgres-operator.crunchydata.com/cluster=app-pgtest
+                  postgres-operator.crunchydata.com/pgupgrade=postgres-upgrade
+                  postgres-operator.crunchydata.com/role=pgupgrade
+                  postgres-operator.crunchydata.com/version=15
+                  prometheus-servicemonitor=enabled
+                  security.istio.io/tlsMode=istio
+                  service.istio.io/canonical-name=postgres-upgrade-pgdata
+                  service.istio.io/canonical-revision=latest
+Annotations:      gatekeeper.sh/mutation-id: 6e9aee03-7b54-4d24-a84f-92bdeaec558f
+                  gatekeeper.sh/mutations:
+                    AssignMetadata//evd-app-alertmanager-config-label:1, AssignMetadata//evd-app-app-code-label:1, AssignMetadata//evd-chemadv...
+                  kubectl.kubernetes.io/default-container: database
+                  kubectl.kubernetes.io/default-logs-container: database
+                  prometheus.io/path: /stats/prometheus
+                  prometheus.io/port: 15020
+                  prometheus.io/scrape: true
+                  sidecar.istio.io/status:
+                    {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+Status:           Running
+IP:               ********
+IPs:
+  IP:           **********
+Controlled By:  Job/postgres-upgrade-pgdata
+Init Containers:
+  istio-init:
+    Container ID:  containerd://caf370a9271e3662434ad67bb6eabc63f1e9d9e5754d8d5d2385ee2e5485e82f
+    Image:         ***********/istio-release/proxyv2:1.17.8
+    Image ID:      ***********/istio-release/proxyv2@sha256:d33fd90e25c59f4f7378d1b9dd0eebbb756e03520ab09cf303a43b51b5cb01b8
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+      --log_as_json
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Tue, 17 Oct 2023 16:23:24 +0300
+      Finished:     Tue, 17 Oct 2023 16:23:24 +0300
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pxxz2 (ro)
+Containers:
+  istio-proxy:
+    Container ID:  containerd://e170c2ce60a26e73a553565e383dee83a7cff24a11b6f67cbbae9b3f5d680787
+    Image:         ***********/istio-release/proxyv2:1.17.8
+    Image ID:      ***********/istio-release/proxyv2@sha256:d33fd90e25c59f4f7378d1b9dd0eebbb756e03520ab09cf303a43b51b5cb01b8
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+      --log_as_json
+      --concurrency
+      2
+    State:          Running
+      Started:      Tue, 17 Oct 2023 16:23:25 +0300
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      100m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=1s timeout=3s period=2s #success=1 #failure=30
+    Environment:
+      JWT_POLICY:                    third-party-jwt
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      postgres-upgrade-pgdata-4s826 (v1:metadata.name)
+      POD_NAMESPACE:                 evd-app (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      PROXY_CONFIG:                  {"tracing":{"zipkin":{"address":"opentelemetry-collector.lightops-obs-agent:9411"}},"extraStatTags":["request_operation"]}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     database
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      postgres-upgrade-pgdata
+      ISTIO_META_OWNER:              kubernetes://apis/batch/v1/namespaces/evd-app/jobs/postgres-upgrade-pgdata
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      ISTIO_META_CLUSTER_ID:         ************
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pxxz2 (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+  database:
+    Container ID:  containerd://de7a43d9772d7beef2bf7c59568e77905fea264e112174e26333d984d8ab4338
+    Image:         registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0
+    Image ID:      registry.developers.crunchydata.com/crunchydata/crunchy-upgrade@sha256:3be5d43f66f9214f7a4ae7056481979f74fdbc83d8fea5e58dcaf20cbb16a757
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      bash
+      -ceu
+      --
+      declare -r data_volume='/pgdata' old_version="$1" new_version="$2"
+      printf 'Performing PostgreSQL upgrade from version "%s" to "%s" ...\n\n' "$@"
+      gid=$(id -G); NSS_WRAPPER_GROUP=$(mktemp)
+      (sed "/^postgres:x:/ d; /^[^:]*:x:${gid%% *}:/ d" /etc/group
+      echo "postgres:x:${gid%% *}:") > "${NSS_WRAPPER_GROUP}"
+      uid=$(id -u); NSS_WRAPPER_PASSWD=$(mktemp)
+      (sed "/^postgres:x:/ d; /^[^:]*:x:${uid}:/ d" /etc/passwd
+      echo "postgres:x:${uid}:${gid%% *}::${data_volume}:") > "${NSS_WRAPPER_PASSWD}"
+      export LD_PRELOAD='libnss_wrapper.so' NSS_WRAPPER_GROUP NSS_WRAPPER_PASSWD
+      cd /pgdata || exit
+      echo -e "Step 1: Making new pgdata directory...\n"
+      mkdir /pgdata/pg"${new_version}"
+      echo -e "Step 2: Initializing new pgdata directory...\n"
+      /usr/pgsql-"${new_version}"/bin/initdb -k -D /pgdata/pg"${new_version}"
+      echo -e "\nStep 3: Setting the expected permissions on the old pgdata directory...\n"
+      chmod 700 /pgdata/pg"${old_version}"
+      echo -e "Step 4: Copying shared_preload_libraries setting to new postgresql.conf file...\n"
+      echo "shared_preload_libraries = '$(/usr/pgsql-"""${old_version}"""/bin/postgres -D \
+      /pgdata/pg"""${old_version}""" -C shared_preload_libraries)'" >> /pgdata/pg"${new_version}"/postgresql.conf
+      echo -e "Step 5: Running pg_upgrade check...\n"
+      time /usr/pgsql-"${new_version}"/bin/pg_upgrade --old-bindir /usr/pgsql-"${old_version}"/bin \
+      --new-bindir /usr/pgsql-"${new_version}"/bin --old-datadir /pgdata/pg"${old_version}"\
+       --new-datadir /pgdata/pg"${new_version}" --link --check
+      echo -e "\nStep 6: Running pg_upgrade...\n"
+      time /usr/pgsql-"${new_version}"/bin/pg_upgrade --old-bindir /usr/pgsql-"${old_version}"/bin \
+      --new-bindir /usr/pgsql-"${new_version}"/bin --old-datadir /pgdata/pg"${old_version}" \
+      --new-datadir /pgdata/pg"${new_version}" --link
+      echo -e "\nStep 7: Copying patroni.dynamic.json...\n"
+      cp /pgdata/pg"${old_version}"/patroni.dynamic.json /pgdata/pg"${new_version}"
+      echo -e "\npg_upgrade Job Complete!"
+      upgrade
+      14
+      15
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Tue, 17 Oct 2023 16:24:05 +0300
+      Finished:     Tue, 17 Oct 2023 16:24:10 +0300
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /dev/shm from dshm (rw)
+      /etc/database-containerinfo from database-containerinfo (ro)
+      /etc/patroni from patroni-config (ro)
+      /etc/pgbackrest/conf.d from pgbackrest-config (ro)
+      /pgconf/tls from cert-volume (ro)
+      /pgdata from postgres-data (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pxxz2 (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             False 
+  ContainersReady   False 
+  PodScheduled      True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  cert-volume:
+    Type:                Projected (a volume that contains injected data from multiple sources)
+    SecretName:          app-pgtest-cluster-cert
+    SecretOptionalName:  <nil>
+    SecretName:          app-pgtest-replication-cert
+    SecretOptionalName:  <nil>
+  postgres-data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  app-pgtest-pgtest-64cb-pgdata
+    ReadOnly:   false
+  database-containerinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      limits.cpu -> cpu_limit
+      requests.cpu -> cpu_request
+      limits.memory -> mem_limit
+      requests.memory -> mem_request
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  pgbackrest-server:
+    Type:                Projected (a volume that contains injected data from multiple sources)
+    SecretName:          app-pgtest-pgtest-64cb-certs
+    SecretOptionalName:  <nil>
+  pgbackrest-config:
+    Type:                Projected (a volume that contains injected data from multiple sources)
+    ConfigMapName:       app-pgtest-pgbackrest-config
+    ConfigMapOptional:   <nil>
+    SecretName:          app-pgtest-pgbackrest
+    SecretOptionalName:  0xc000c3c443
+  patroni-config:
+    Type:                Projected (a volume that contains injected data from multiple sources)
+    ConfigMapName:       app-pgtest-config
+    ConfigMapOptional:   <nil>
+    ConfigMapName:       app-pgtest-pgtest-64cb-config
+    ConfigMapOptional:   <nil>
+    SecretName:          app-pgtest-pgtest-64cb-certs
+    SecretOptionalName:  <nil>
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  16Mi
+  dshm:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  kube-api-access-pxxz2:
+    Type:                     Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:   3607
+    ConfigMapName:            kube-root-ca.crt
+    ConfigMapOptional:        <nil>
+    DownwardAPI:              true
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                              node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Topology Spread Constraints:  kubernetes.io/hostname:ScheduleAnyway when max skew 1 is exceeded for selector postgres-operator.crunchydata.com/cluster=app-pgtest,postgres-operator.crunchydata.com/data in (pgbackrest,postgres)
+                              topology.kubernetes.io/zone:ScheduleAnyway when max skew 1 is exceeded for selector postgres-operator.crunchydata.com/cluster=app-pgtest,postgres-operator.crunchydata.com/data in (pgbackrest,postgres)
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  106s  default-scheduler  Successfully assigned evd-app/postgres-upgrade-pgdata-4s826 to aks-nodepool1-37632515-vmss0000fe
+  Normal  Pulled     100s  kubelet            Container image "slbcentraldev.azurecr.io/istio-release/proxyv2:1.17.8" already present on machine
+  Normal  Created    100s  kubelet            Created container istio-init
+  Normal  Started    100s  kubelet            Started container istio-init
+  Normal  Pulled     99s   kubelet            Container image "slbcentraldev.azurecr.io/istio-release/proxyv2:1.17.8" already present on machine
+  Normal  Created    99s   kubelet            Created container istio-proxy
+  Normal  Started    99s   kubelet            Started container istio-proxy
+  Normal  Pulling    76s   kubelet            Pulling image "registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0"
+  Normal  Pulled     59s   kubelet            Successfully pulled image "registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0" in 16.704871204s (16.704883305s including waiting)
+  Normal  Created    59s   kubelet            Created container database
+  Normal  Started    59s   kubelet            Started container database
