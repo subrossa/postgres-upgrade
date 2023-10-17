@@ -1,0 +1,597 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    gatekeeper.sh/mutation-id: 6e9aee03-7b54-4d24-a84f-92bdeaec558f
+    gatekeeper.sh/mutations: AssignMetadata//evd-app-alertmanager-config-label:1,
+      AssignMetadata//evd-app-app-code-label:1, AssignMetadata//evd-app-bl-cc-label:1,
+      AssignMetadata//evd-app-bl-ssr-label:1, AssignMetadata//evd-app-prometheus-servicemonitor-label:1
+    kubectl.kubernetes.io/default-container: database
+    kubectl.kubernetes.io/default-logs-container: database
+    prometheus.io/path: /stats/prometheus
+    prometheus.io/port: "15020"
+    prometheus.io/scrape: "true"
+    sidecar.istio.io/status: '{"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-envoy","istio-data","istio-podinfo","istio-token","istiod-ca-cert"],"imagePullSecrets":null,"revision":"default"}'
+  creationTimestamp: "2023-10-17T13:23:18Z"
+  finalizers:
+  - batch.kubernetes.io/job-tracking
+  generateName: postgres-upgrade-pgdata-
+  labels:
+    alertmanager-config: enabled
+    app-code: app
+    bl-cc: US104772
+    bl-ssr: EAR-AA-7529
+    controller-uid: 8fdf266a-98f1-42a9-abd0-2a7907a72756
+    job-name: postgres-upgrade-pgdata
+    postgres-operator.crunchydata.com/cluster: app-pgtest
+    postgres-operator.crunchydata.com/pgupgrade: postgres-upgrade
+    postgres-operator.crunchydata.com/role: pgupgrade
+    postgres-operator.crunchydata.com/version: "15"
+    prometheus-servicemonitor: enabled
+    security.istio.io/tlsMode: istio
+    service.istio.io/canonical-name: postgres-upgrade-pgdata
+    service.istio.io/canonical-revision: latest
+  name: postgres-upgrade-pgdata-4s826
+  namespace: evd-app
+  ownerReferences:
+  - apiVersion: batch/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Job
+    name: postgres-upgrade-pgdata
+    uid: 8fdf266a-98f1-42a9-abd0-2a7907a72756
+  resourceVersion: "1463145805"
+  uid: 64b126ff-9669-4ba7-a87c-dda6f2524421
+spec:
+  containers:
+  - args:
+    - proxy
+    - sidecar
+    - --domain
+    - $(POD_NAMESPACE).svc.cluster.local
+    - --proxyLogLevel=warning
+    - --proxyComponentLogLevel=misc:error
+    - --log_output_level=default:info
+    - --log_as_json
+    - --concurrency
+    - "2"
+    env:
+    - name: JWT_POLICY
+      value: third-party-jwt
+    - name: PILOT_CERT_PROVIDER
+      value: istiod
+    - name: CA_ADDR
+      value: istiod.istio-system.svc:15012
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: INSTANCE_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: SERVICE_ACCOUNT
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.serviceAccountName
+    - name: HOST_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.hostIP
+    - name: PROXY_CONFIG
+      value: |
+        {"tracing":{"zipkin":{"address":"opentelemetry-collector.lightops-obs-agent:9411"}},"extraStatTags":["request_operation"]}
+    - name: ISTIO_META_POD_PORTS
+      value: |-
+        [
+        ]
+    - name: ISTIO_META_APP_CONTAINERS
+      value: database
+    - name: ISTIO_META_NODE_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.nodeName
+    - name: ISTIO_META_INTERCEPTION_MODE
+      value: REDIRECT
+    - name: ISTIO_META_WORKLOAD_NAME
+      value: postgres-upgrade-pgdata
+    - name: ISTIO_META_OWNER
+      value: kubernetes://apis/batch/v1/namespaces/evd-app/jobs/postgres-upgrade-pgdata
+    - name: ISTIO_META_MESH_ID
+      value: cluster.local
+    - name: TRUST_DOMAIN
+      value: cluster.local
+    - name: ISTIO_META_CLUSTER_ID
+      value: *************
+    image: slbcentraldev.azurecr.io/istio-release/proxyv2:1.17.8
+    imagePullPolicy: IfNotPresent
+    lifecycle:
+      postStart:
+        exec:
+          command:
+          - pilot-agent
+          - wait
+    name: istio-proxy
+    ports:
+    - containerPort: 15090
+      name: http-envoy-prom
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 30
+      httpGet:
+        path: /healthz/ready
+        port: 15021
+        scheme: HTTP
+      initialDelaySeconds: 1
+      periodSeconds: 2
+      successThreshold: 1
+      timeoutSeconds: 3
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsGroup: 1337
+      runAsNonRoot: true
+      runAsUser: 1337
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/workload-spiffe-uds
+      name: workload-socket
+    - mountPath: /var/run/secrets/credential-uds
+      name: credential-socket
+    - mountPath: /var/run/secrets/workload-spiffe-credentials
+      name: workload-certs
+    - mountPath: /var/run/secrets/istio
+      name: istiod-ca-cert
+    - mountPath: /var/lib/istio/data
+      name: istio-data
+    - mountPath: /etc/istio/proxy
+      name: istio-envoy
+    - mountPath: /var/run/secrets/tokens
+      name: istio-token
+    - mountPath: /etc/istio/pod
+      name: istio-podinfo
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-pxxz2
+      readOnly: true
+  - command:
+    - bash
+    - -ceu
+    - --
+    - |-
+      declare -r data_volume='/pgdata' old_version="$1" new_version="$2"
+      printf 'Performing PostgreSQL upgrade from version "%s" to "%s" ...\n\n' "$@"
+      gid=$(id -G); NSS_WRAPPER_GROUP=$(mktemp)
+      (sed "/^postgres:x:/ d; /^[^:]*:x:${gid%% *}:/ d" /etc/group
+      echo "postgres:x:${gid%% *}:") > "${NSS_WRAPPER_GROUP}"
+      uid=$(id -u); NSS_WRAPPER_PASSWD=$(mktemp)
+      (sed "/^postgres:x:/ d; /^[^:]*:x:${uid}:/ d" /etc/passwd
+      echo "postgres:x:${uid}:${gid%% *}::${data_volume}:") > "${NSS_WRAPPER_PASSWD}"
+      export LD_PRELOAD='libnss_wrapper.so' NSS_WRAPPER_GROUP NSS_WRAPPER_PASSWD
+      cd /pgdata || exit
+      echo -e "Step 1: Making new pgdata directory...\n"
+      mkdir /pgdata/pg"${new_version}"
+      echo -e "Step 2: Initializing new pgdata directory...\n"
+      /usr/pgsql-"${new_version}"/bin/initdb -k -D /pgdata/pg"${new_version}"
+      echo -e "\nStep 3: Setting the expected permissions on the old pgdata directory...\n"
+      chmod 700 /pgdata/pg"${old_version}"
+      echo -e "Step 4: Copying shared_preload_libraries setting to new postgresql.conf file...\n"
+      echo "shared_preload_libraries = '$(/usr/pgsql-"""${old_version}"""/bin/postgres -D \
+      /pgdata/pg"""${old_version}""" -C shared_preload_libraries)'" >> /pgdata/pg"${new_version}"/postgresql.conf
+      echo -e "Step 5: Running pg_upgrade check...\n"
+      time /usr/pgsql-"${new_version}"/bin/pg_upgrade --old-bindir /usr/pgsql-"${old_version}"/bin \
+      --new-bindir /usr/pgsql-"${new_version}"/bin --old-datadir /pgdata/pg"${old_version}"\
+       --new-datadir /pgdata/pg"${new_version}" --link --check
+      echo -e "\nStep 6: Running pg_upgrade...\n"
+      time /usr/pgsql-"${new_version}"/bin/pg_upgrade --old-bindir /usr/pgsql-"${old_version}"/bin \
+      --new-bindir /usr/pgsql-"${new_version}"/bin --old-datadir /pgdata/pg"${old_version}" \
+      --new-datadir /pgdata/pg"${new_version}" --link
+      echo -e "\nStep 7: Copying patroni.dynamic.json...\n"
+      cp /pgdata/pg"${old_version}"/patroni.dynamic.json /pgdata/pg"${new_version}"
+      echo -e "\npg_upgrade Job Complete!"
+    - upgrade
+    - "14"
+    - "15"
+    image: registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0
+    imagePullPolicy: IfNotPresent
+    name: database
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /pgconf/tls
+      name: cert-volume
+      readOnly: true
+    - mountPath: /pgdata
+      name: postgres-data
+    - mountPath: /etc/database-containerinfo
+      name: database-containerinfo
+      readOnly: true
+    - mountPath: /etc/pgbackrest/conf.d
+      name: pgbackrest-config
+      readOnly: true
+    - mountPath: /etc/patroni
+      name: patroni-config
+      readOnly: true
+    - mountPath: /tmp
+      name: tmp
+    - mountPath: /dev/shm
+      name: dshm
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-pxxz2
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: false
+  initContainers:
+  - args:
+    - istio-iptables
+    - -p
+    - "15001"
+    - -z
+    - "15006"
+    - -u
+    - "1337"
+    - -m
+    - REDIRECT
+    - -i
+    - '*'
+    - -x
+    - ""
+    - -b
+    - '*'
+    - -d
+    - 15090,15021,15020
+    - --log_output_level=default:info
+    - --log_as_json
+    image: slbcentraldev.azurecr.io/istio-release/proxyv2:1.17.8
+    imagePullPolicy: IfNotPresent
+    name: istio-init
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        add:
+        - NET_ADMIN
+        - NET_RAW
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: false
+      runAsGroup: 0
+      runAsNonRoot: false
+      runAsUser: 0
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-pxxz2
+      readOnly: true
+  nodeName: ******************
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 26
+    fsGroupChangePolicy: OnRootMismatch
+  serviceAccount: app-pgtest-instance
+  serviceAccountName: app-pgtest-instance
+  shareProcessNamespace: true
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoSchedule
+    key: node.kubernetes.io/memory-pressure
+    operator: Exists
+  topologySpreadConstraints:
+  - labelSelector:
+      matchExpressions:
+      - key: postgres-operator.crunchydata.com/data
+        operator: In
+        values:
+        - postgres
+        - pgbackrest
+      matchLabels:
+        postgres-operator.crunchydata.com/cluster: app-pgtest
+    maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+  - labelSelector:
+      matchExpressions:
+      - key: postgres-operator.crunchydata.com/data
+        operator: In
+        values:
+        - postgres
+        - pgbackrest
+      matchLabels:
+        postgres-operator.crunchydata.com/cluster: app-pgtest
+    maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+  volumes:
+  - emptyDir: {}
+    name: workload-socket
+  - emptyDir: {}
+    name: credential-socket
+  - emptyDir: {}
+    name: workload-certs
+  - emptyDir:
+      medium: Memory
+    name: istio-envoy
+  - emptyDir: {}
+    name: istio-data
+  - downwardAPI:
+      defaultMode: 420
+      items:
+      - fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.labels
+        path: labels
+      - fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.annotations
+        path: annotations
+    name: istio-podinfo
+  - name: istio-token
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          audience: istio-ca
+          expirationSeconds: 43200
+          path: istio-token
+  - configMap:
+      defaultMode: 420
+      name: istio-ca-root-cert
+    name: istiod-ca-cert
+  - name: cert-volume
+    projected:
+      defaultMode: 384
+      sources:
+      - secret:
+          items:
+          - key: tls.crt
+            path: tls.crt
+          - key: tls.key
+            path: tls.key
+          - key: ca.crt
+            path: ca.crt
+          name: app-pgtest-cluster-cert
+      - secret:
+          items:
+          - key: tls.crt
+            path: replication/tls.crt
+          - key: tls.key
+            path: replication/tls.key
+          - key: ca.crt
+            path: replication/ca.crt
+          name: app-pgtest-replication-cert
+  - name: postgres-data
+    persistentVolumeClaim:
+      claimName: app-pgtest-pgtest-64cb-pgdata
+  - downwardAPI:
+      defaultMode: 420
+      items:
+      - path: cpu_limit
+        resourceFieldRef:
+          containerName: database
+          divisor: 1m
+          resource: limits.cpu
+      - path: cpu_request
+        resourceFieldRef:
+          containerName: database
+          divisor: 1m
+          resource: requests.cpu
+      - path: mem_limit
+        resourceFieldRef:
+          containerName: database
+          divisor: 1Mi
+          resource: limits.memory
+      - path: mem_request
+        resourceFieldRef:
+          containerName: database
+          divisor: 1Mi
+          resource: requests.memory
+      - fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.labels
+        path: labels
+      - fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.annotations
+        path: annotations
+    name: database-containerinfo
+  - name: pgbackrest-server
+    projected:
+      defaultMode: 420
+      sources:
+      - secret:
+          items:
+          - key: pgbackrest-server.crt
+            path: server-tls.crt
+          - key: pgbackrest-server.key
+            mode: 384
+            path: server-tls.key
+          name: app-pgtest-pgtest-64cb-certs
+  - name: pgbackrest-config
+    projected:
+      defaultMode: 420
+      sources:
+      - configMap:
+          items:
+          - key: pgbackrest_instance.conf
+            path: pgbackrest_instance.conf
+          - key: config-hash
+            path: config-hash
+          - key: pgbackrest-server.conf
+            path: ~postgres-operator_server.conf
+          name: app-pgtest-pgbackrest-config
+      - secret:
+          items:
+          - key: pgbackrest.ca-roots
+            path: ~postgres-operator/tls-ca.crt
+          - key: pgbackrest-client.crt
+            path: ~postgres-operator/client-tls.crt
+          - key: pgbackrest-client.key
+            mode: 384
+            path: ~postgres-operator/client-tls.key
+          name: app-pgtest-pgbackrest
+          optional: true
+  - name: patroni-config
+    projected:
+      defaultMode: 420
+      sources:
+      - configMap:
+          items:
+          - key: patroni.yaml
+            path: ~postgres-operator_cluster.yaml
+          name: app-pgtest-config
+      - configMap:
+          items:
+          - key: patroni.yaml
+            path: ~postgres-operator_instance.yaml
+          name: app-pgtest-pgtest-64cb-config
+      - secret:
+          items:
+          - key: patroni.ca-roots
+            path: ~postgres-operator/patroni.ca-roots
+          - key: patroni.crt-combined
+            path: ~postgres-operator/patroni.crt+key
+          name: app-pgtest-pgtest-64cb-certs
+  - emptyDir:
+      sizeLimit: 16Mi
+    name: tmp
+  - emptyDir:
+      medium: Memory
+    name: dshm
+  - name: kube-api-access-pxxz2
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2023-10-17T13:23:25Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2023-10-17T13:24:11Z"
+    message: 'containers with unready status: [database]'
+    reason: ContainersNotReady
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2023-10-17T13:24:11Z"
+    message: 'containers with unready status: [database]'
+    reason: ContainersNotReady
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2023-10-17T13:23:18Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://de7a43d9772d7beef2bf7c59568e77905fea264e112174e26333d984d8ab4338
+    image: registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0
+    imageID: registry.developers.crunchydata.com/crunchydata/crunchy-upgrade@sha256:3be5d43f66f9214f7a4ae7056481979f74fdbc83d8fea5e58dcaf20cbb16a757
+    lastState: {}
+    name: database
+    ready: false
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://de7a43d9772d7beef2bf7c59568e77905fea264e112174e26333d984d8ab4338
+        exitCode: 1
+        finishedAt: "2023-10-17T13:24:10Z"
+        reason: Error
+        startedAt: "2023-10-17T13:24:05Z"
+  - containerID: containerd://e170c2ce60a26e73a553565e383dee83a7cff24a11b6f67cbbae9b3f5d680787
+    image: ***************/istio-release/proxyv2:1.17.8
+    imageID: ***************/istio-release/proxyv2@sha256:d33fd90e25c59f4f7378d1b9dd0eebbb756e03520ab09cf303a43b51b5cb01b8
+    lastState: {}
+    name: istio-proxy
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2023-10-17T13:23:25Z"
+  hostIP: 10.1.16.70
+  initContainerStatuses:
+  - containerID: containerd://caf370a9271e3662434ad67bb6eabc63f1e9d9e5754d8d5d2385ee2e5485e82f
+    image: ************/istio-release/proxyv2:1.17.8
+    imageID: *******************/istio-release/proxyv2@sha256:d33fd90e25c59f4f7378d1b9dd0eebbb756e03520ab09cf303a43b51b5cb01b8
+    lastState: {}
+    name: istio-init
+    ready: true
+    restartCount: 0
+    state:
+      terminated:
+        containerID: containerd://caf370a9271e3662434ad67bb6eabc63f1e9d9e5754d8d5d2385ee2e5485e82f
+        exitCode: 0
+        finishedAt: "2023-10-17T13:23:24Z"
+        reason: Completed
+        startedAt: "2023-10-17T13:23:24Z"
+  phase: Running
+  podIP: 10.1.18.212
+  podIPs:
+  - ip: 10.1.18.212
+  qosClass: Burstable
+  startTime: "2023-10-17T13:23:18Z"
